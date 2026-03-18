@@ -38,7 +38,7 @@ const isActive = (path) => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: calc(var(--tab-bar-height) + var(--safe-area-bottom) + 60px);
+  height: calc(var(--tab-bar-height) + var(--safe-area-bottom));
   padding-bottom: var(--safe-area-bottom);
   background: rgba(255, 255, 255, 0.90);
   backdrop-filter: blur(12px);
@@ -57,26 +57,25 @@ const isActive = (path) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-sm);
+  padding: 6px 0 4px;
   text-decoration: none;
   transition: all var(--transition-normal);
   position: relative;
 }
 
 .tab-icon {
-  font-size: 22px;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   transition: transform var(--transition-normal);
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .tab-icon-img {
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   opacity: 0.45;
   transition: opacity var(--transition-normal), filter var(--transition-normal);
@@ -89,11 +88,12 @@ const isActive = (path) => {
 }
 
 .tab-label {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--text-secondary);
   font-family: var(--font-xingshu);
   font-weight: var(--font-weight-medium);
   transition: color var(--transition-normal);
+  line-height: 1.2;
 }
 
 .tab-active-line {

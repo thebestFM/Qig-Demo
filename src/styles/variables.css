@@ -85,7 +85,7 @@
   
   /* ===== 布局相关 ===== */
   --header-height: 160px;
-  --tab-bar-height: 124px;
+  --tab-bar-height: 100px;
   --max-content-width: 1200px;
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
