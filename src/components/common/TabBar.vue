@@ -38,7 +38,7 @@ const isActive = (path) => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: calc(var(--tab-bar-height) + var(--safe-area-bottom));
+  height: calc(var(--tab-bar-height) + var(--safe-area-bottom) + 60px);
   padding-bottom: var(--safe-area-bottom);
   background: rgba(255, 255, 255, 0.90);
   backdrop-filter: blur(12px);
@@ -65,18 +65,18 @@ const isActive = (path) => {
 
 .tab-icon {
   font-size: 22px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   transition: transform var(--transition-normal);
-  width: 24px;
-  height: 24px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .tab-icon-img {
-  width: 24px;
-  height: 24px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
   opacity: 0.45;
   transition: opacity var(--transition-normal), filter var(--transition-normal);
@@ -89,7 +89,7 @@ const isActive = (path) => {
 }
 
 .tab-label {
-  font-size: var(--font-size-xs);
+  font-size: 18px;
   color: var(--text-secondary);
   font-family: var(--font-xingshu);
   font-weight: var(--font-weight-medium);

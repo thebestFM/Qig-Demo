@@ -28,7 +28,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 var(--spacing-lg);
+  padding: var(--spacing-lg);
 }
 
 .header-left {
@@ -58,14 +58,14 @@
 }
 
 .logo-img {
-  height: 36px;
+  height: 144px;
   width: auto;
   object-fit: contain;
   display: block;
 }
 
 .app-subtitle {
-  font-size: 10px;
+  font-size: 16px;
   font-family: var(--font-xingshu);
   color: var(--text-secondary);
   letter-spacing: 0.25em;
