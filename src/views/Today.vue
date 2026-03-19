@@ -268,7 +268,7 @@ const startConsultation = () => {
 }
 
 .expand-text {
-  font-size: 10px;
+  font-size: 20px;
   font-family: var(--font-xingshu);
   color: var(--color-warning);
 }
