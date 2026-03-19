@@ -38,6 +38,7 @@
   --font-sans: 'Noto Sans SC', '思源黑体', 'Microsoft YaHei', sans-serif; /* 黑体 */
   --font-kai: 'KaiTi', '楷体', 'STKaiti', serif; /* 楷体 */
   --font-xingshu: 'Ma Shan Zheng', 'KaiTi', '楷体', 'STKaiti', cursive; /* 行书（装饰文字） */
+  --font-english-script: 'Dancing Script', 'Pacifico', cursive; /* 英文手写体 */
   
   /* 字号（全局上调约2px，方便阅读）*/
   --font-size-xs: 14px;
@@ -84,7 +85,7 @@
   --transition-slow: 0.35s ease;
   
   /* ===== 布局相关 ===== */
-  --header-height: 160px;
+  --header-height: 120px;
   --tab-bar-height: 100px;
   --max-content-width: 1200px;
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);

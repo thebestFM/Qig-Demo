@@ -3,7 +3,7 @@
     <div class="content-wrapper">
       <div v-if="!prescriptionStore.currentPrescription" class="upload-section">
         <h2 class="section-title">方子解析</h2>
-        <p class="section-desc">上传处方图片，AI 将为您解析方义与注意事项</p>
+        <p class="section-desc">上传处方照片，Qig智能体将为您解析方义与注意事项</p>
 
         <!-- 多模态能力标注 -->
         <div class="multimodal-badges">
@@ -124,7 +124,7 @@
 
         <!-- 证据层 -->
         <div class="references-section">
-          <h3 class="subsection-title">依据与引用 (RAG)</h3>
+          <h3 class="subsection-title">依据与引用</h3>
           <div class="references-list">
             <div 
               v-for="reference in prescriptionStore.currentPrescription.references"

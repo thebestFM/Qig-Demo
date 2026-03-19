@@ -7,7 +7,7 @@ export const useCompanionStore = defineStore('companion', () => {
     {
       id: 1,
       type: 'ai',
-      content: '您好!我是您的AI中医管家。根据您今日的健康数据,建议您保持良好的作息习惯。有什么想问我的吗?',
+      content: '您好！我是Qig，您的专属中医管家。根据您今日的健康数据，建议您保持良好的作息习惯。有什么想问我的吗？',
       timestamp: new Date().toISOString(),
       evidence: null
     }

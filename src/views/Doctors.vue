@@ -2,7 +2,7 @@
   <div class="page-container doctors-page">
     <div class="content-wrapper">
       <h2 class="page-title font-serif">医生推荐</h2>
-      <p class="page-desc">根据您的问诊结果,为您匹配最合适的中医专家</p>
+      <p class="page-desc">根据您的问诊过往，为您推荐最相关的中医专家医师</p>
 
       <!-- 医生列表 -->
       <div class="doctors-list">
@@ -19,16 +19,8 @@
               <p class="doctor-title">{{ doctor.title }}</p>
               <p class="doctor-institution">{{ doctor.institution }}</p>
             </div>
-            <div class="match-score">
-              <div class="score-value">{{ doctor.matchScore }}%</div>
-              <div class="score-label">匹配度</div>
-            </div>
           </div>
           
-          <div class="doctor-match">
-            <span class="match-icon">✨</span>
-            <span class="match-reason">{{ doctor.matchReason }}</span>
-          </div>
 
           <div class="doctor-status">
             <span class="status-dot" :class="{ online: doctor.isOnline }"></span>
@@ -39,7 +31,7 @@
 
           <div class="ai-report-badge">
             <span class="badge-icon">✓</span>
-            <span class="badge-text">已附 AI 初筛报告</span>
+            <span class="badge-text">已附 Qig智能体初筛报告</span>
           </div>
         </div>
       </div>

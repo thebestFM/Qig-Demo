@@ -18,10 +18,9 @@
       <div class="step-content">
         <!-- 空闲状态 -->
         <div v-if="consultationStore.currentStep === 'idle'" class="idle-state">
-          <div class="idle-icon">🌿</div>
           <h2 class="idle-title font-serif">四诊合参</h2>
           <p class="idle-description">
-            通过望闻问切,结合AI分析,为您提供个性化的中医体质辨识与健康建议。
+            望闻问切 | <span class="qig-en">Qig</span>智能体为您分析身体状态，并提供更新后的体质辨识与健康建议。
           </p>
           <div class="idle-features">
             <div class="feature-item">
@@ -291,11 +290,18 @@
         <!-- 报告结果 -->
         <div v-else-if="consultationStore.currentStep === 'result'" class="result-state">
           <div class="result-header">
-            <div class="result-icon">✨</div>
             <h2 class="result-title font-serif">问诊报告</h2>
           </div>
 
           <div class="report-sections">
+            <!-- 红旗提醒 -->
+            <div class="report-section warning-section">
+              <div class="red-flag-alert">
+                <span class="red-flag-icon">!</span>
+                <span class="red-flag-text">若出现发热、剧烈头痛或其他明显不适症状，请立即线下就诊</span>
+              </div>
+            </div>
+
             <!-- 概览 -->
             <div class="report-section">
               <h3 class="section-title">本次概览</h3>
@@ -306,7 +312,7 @@
             <div class="report-section">
               <h3 class="section-title">可能倾向</h3>
               <div class="tendency-tags">
-                <span 
+                <span
                   v-for="tendency in consultationStore.report.tendencies"
                   :key="tendency"
                   class="tendency-tag"
@@ -320,14 +326,14 @@
             <div class="report-section">
               <h3 class="section-title">今日建议</h3>
               <div class="suggestion-list">
-                <div 
+                <div
                   v-for="suggestion in consultationStore.report.suggestions"
                   :key="suggestion.category"
                   class="suggestion-item"
                 >
                   <div class="suggestion-category">{{ suggestion.category }}</div>
                   <div class="suggestion-content">{{ suggestion.content }}</div>
-                  <button 
+                  <button
                     class="add-to-plan-btn"
                     @click="addToPlan(suggestion.content)"
                   >
@@ -337,23 +343,9 @@
               </div>
             </div>
 
-            <!-- 红旗提示 -->
-            <div class="report-section warning-section">
-              <h3 class="section-title">⚠️ 红旗提示</h3>
-              <div class="warning-list">
-                <div 
-                  v-for="(warning, index) in consultationStore.report.warnings"
-                  :key="index"
-                  class="warning-item"
-                >
-                  {{ warning }}
-                </div>
-              </div>
-            </div>
-
             <!-- 依据与引用 -->
             <div class="report-section">
-              <h3 class="section-title">依据与引用 (RAG)</h3>
+              <h3 class="section-title">依据与引用</h3>
               <div class="reference-list">
                 <div 
                   v-for="reference in consultationStore.report.references"
@@ -1507,6 +1499,40 @@ onUnmounted(() => {
 .next-btn:disabled {
   background: var(--text-tertiary);
   cursor: not-allowed;
+}
+
+/* Qig 英文手写体 */
+.qig-en {
+  font-family: var(--font-english-script);
+  font-style: normal;
+}
+
+/* 红旗提醒 */
+.red-flag-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.red-flag-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  color: white;
+  font-weight: var(--font-weight-bold);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.red-flag-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  line-height: var(--line-height-relaxed);
 }
 
 /* 脉动动画 */

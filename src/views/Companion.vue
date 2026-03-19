@@ -1,24 +1,20 @@
 <template>
   <div class="page-container companion-page">
-    <!-- 计划进度 -->
-    <div class="progress-bar">
-      <div class="progress-label">今日计划进度</div>
-      <div class="progress-info">
-        <span class="progress-count">{{ completedActions }}/{{ userStore.todayActions.length }}</span>
-        <div class="progress-track">
-          <div 
-            class="progress-fill" 
+    <!-- Agent 状态条 + 进度条 -->
+    <div class="agent-status-bar">
+      <div class="status-left">
+        <span class="agent-dot"></span>
+        <span class="agent-label"><span class="qig-en">Qig</span> 在线</span>
+      </div>
+      <div class="status-right">
+        <span class="inline-progress-label">今日计划 {{ completedActions }}/{{ userStore.todayActions.length }}</span>
+        <div class="inline-progress-bar">
+          <div
+            class="inline-progress-fill"
             :style="{ width: (completedActions / userStore.todayActions.length * 100) + '%' }"
           ></div>
         </div>
       </div>
-    </div>
-
-    <!-- Agent 状态条 -->
-    <div class="agent-status-bar">
-      <span class="agent-dot"></span>
-      <span class="agent-label">Agent 模式 · RAG 增强 · Claude Opus</span>
-      <span class="agent-model">实时在线</span>
     </div>
 
     <!-- 聊天区域 -->
@@ -31,10 +27,10 @@
           :class="{ 'ai-message': message.type === 'ai', 'user-message': message.type === 'user' }"
         >
           <div v-if="message.type === 'ai'" class="ai-avatar">
-            <span class="ai-avatar-icon">🌿</span>
+            <img src="/Qig.png" alt="Qig" class="ai-avatar-img" />
           </div>
           <div class="message-bubble-wrap">
-            <div v-if="message.type === 'ai'" class="ai-model-tag">Claude Opus · RAG</div>
+            <div v-if="message.type === 'ai'" class="ai-model-tag">Qig中医管家</div>
             <div class="message-bubble">
               <div class="message-content">{{ message.content }}</div>
               <div v-if="message.type === 'ai' && !message.isThinking" class="message-actions">
@@ -58,29 +54,16 @@
       </div>
     </div>
 
-    <!-- 情境快捷入口 -->
-    <div class="quick-chips">
-      <button 
-        v-for="chip in companionStore.quickChips"
-        :key="chip.id"
-        class="chip-btn"
-        @click="handleQuickChip(chip)"
-      >
-        <span class="chip-icon">{{ chip.icon }}</span>
-        <span class="chip-text">{{ chip.text }}</span>
-      </button>
-    </div>
-
     <!-- 输入区域 -->
     <div class="input-area">
       <button class="voice-btn" @click="handleVoice" title="声诊语音输入">
-        🎤
+        <img src="/microphone.png" alt="语音" class="voice-icon-img" />
       </button>
       <input
         v-model="userInput"
         type="text"
         class="chat-input"
-        placeholder="输入您想问的，或点击🎤语音输入..."
+        placeholder="输入您想问的，或点击话筒语音输入..."
         @keyup.enter="sendMessage"
       />
       <button class="send-btn" @click="sendMessage" :disabled="!userInput.trim()">
@@ -103,7 +86,7 @@ import { ref, computed, nextTick } from 'vue'
 import { useCompanionStore } from '../stores/companion'
 import { useUserStore } from '../stores/user'
 import Drawer from '../components/common/Drawer.vue'
-import { sendCompanionMessage } from '../services/claudeService.js'
+import { sendWendaoMessage } from '../services/claudeService.js'
 
 const companionStore = useCompanionStore()
 const userStore = useUserStore()
@@ -146,7 +129,7 @@ const sendMessage = async () => {
   scrollToBottom()
 
   try {
-    const replyText = await sendCompanionMessage(
+    const replyText = await sendWendaoMessage(
       companionStore.messages.filter(m => !m.isThinking),
       userText
     )
@@ -158,60 +141,10 @@ const sendMessage = async () => {
     })
   } catch (e) {
     companionStore.removeMessage(thinkingId)
-    // 降级到 mock 回复
-    const response = companionStore.generateResponse(userText)
     companionStore.addMessage({
       type: 'ai',
-      content: response.content,
-      evidence: response.evidence
-    })
-  } finally {
-    isAiThinking.value = false
-    await nextTick()
-    scrollToBottom()
-  }
-}
-
-const handleQuickChip = async (chip) => {
-  if (isAiThinking.value) return
-
-  companionStore.addMessage({
-    type: 'user',
-    content: chip.text
-  })
-
-  await nextTick()
-  scrollToBottom()
-
-  isAiThinking.value = true
-  const thinkingId = Date.now()
-  companionStore.addMessage({
-    id: thinkingId,
-    type: 'ai',
-    content: '思考中……',
-    isThinking: true
-  })
-  await nextTick()
-  scrollToBottom()
-
-  try {
-    const replyText = await sendCompanionMessage(
-      companionStore.messages.filter(m => !m.isThinking),
-      chip.text
-    )
-    companionStore.removeMessage(thinkingId)
-    companionStore.addMessage({
-      type: 'ai',
-      content: replyText,
+      content: `[API错误] ${e.message}`,
       evidence: null
-    })
-  } catch (e) {
-    companionStore.removeMessage(thinkingId)
-    const response = companionStore.generateResponse(chip.text)
-    companionStore.addMessage({
-      type: 'ai',
-      content: response.content,
-      evidence: response.evidence
     })
   } finally {
     isAiThinking.value = false
@@ -261,25 +194,40 @@ const formatTime = (timestamp) => {
 .companion-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--header-height));
-  background: var(--bg-primary);
+  height: calc(100vh - var(--header-height) - var(--tab-bar-height));
+  background: transparent;
   padding: 0;
+  overflow: hidden;
 }
 
 /* Agent 状态条 */
 .agent-status-bar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: 6px var(--spacing-lg);
+  padding: 7px var(--spacing-lg);
   background: rgba(91, 140, 90, 0.06);
   border-bottom: 1px solid rgba(91, 140, 90, 0.12);
-  font-size: 11px;
+  font-size: 12px;
+}
+
+.status-left {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-right {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .agent-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--color-success);
   flex-shrink: 0;
@@ -287,54 +235,32 @@ const formatTime = (timestamp) => {
 }
 
 .agent-label {
-  flex: 1;
   color: var(--color-success);
   font-family: var(--font-sans);
   letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
-.agent-model {
+.inline-progress-label {
+  font-size: 11px;
   color: var(--text-tertiary);
-  font-size: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* 进度条 */
-.progress-bar {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(6px);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.progress-label {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.progress-info {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.progress-count {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-accent);
-}
-
-.progress-track {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-secondary);
+.inline-progress-bar {
+  width: 80px;
+  flex-shrink: 0;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.06);
   border-radius: var(--radius-full);
   overflow: hidden;
+  border: 1px solid rgba(160, 160, 160, 0.35);
 }
 
-.progress-fill {
+.inline-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  background: linear-gradient(90deg, var(--color-success), var(--color-success-light));
   border-radius: var(--radius-full);
   transition: width var(--transition-slow);
 }
@@ -370,8 +296,8 @@ const formatTime = (timestamp) => {
 
 .ai-avatar {
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: linear-gradient(135deg, rgba(200,75,49,0.12), rgba(230,162,60,0.12));
   border: 1px solid rgba(200,75,49,0.2);
@@ -380,6 +306,19 @@ const formatTime = (timestamp) => {
   justify-content: center;
   font-size: 18px;
   margin-top: 2px;
+  overflow: hidden;
+}
+
+.ai-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.qig-en {
+  font-family: var(--font-english-script);
+  font-style: normal;
 }
 
 .message-bubble-wrap {
@@ -393,10 +332,11 @@ const formatTime = (timestamp) => {
 }
 
 .ai-model-tag {
-  font-size: 10px;
-  color: var(--text-tertiary);
+  font-size: 13px;
+  color: var(--text-secondary);
   font-family: var(--font-sans);
-  margin-bottom: 3px;
+  font-weight: var(--font-weight-medium);
+  margin-bottom: 4px;
   padding-left: 2px;
 }
 
@@ -455,49 +395,6 @@ const formatTime = (timestamp) => {
   margin-top: var(--spacing-xs);
 }
 
-/* 快捷入口 */
-.quick-chips {
-  display: flex;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  overflow-x: auto;
-  background: var(--bg-card);
-  border-top: 1px solid var(--border-light);
-  -webkit-overflow-scrolling: touch;
-}
-
-.quick-chips::-webkit-scrollbar {
-  display: none;
-}
-
-.chip-btn {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-}
-
-.chip-btn:hover {
-  border-color: var(--color-accent);
-  background: rgba(200, 75, 49, 0.05);
-}
-
-.chip-icon {
-  font-size: 16px;
-}
-
-.chip-text {
-  color: var(--text-primary);
-}
-
 /* 输入区域 */
 .input-area {
   display: flex;
@@ -529,6 +426,13 @@ const formatTime = (timestamp) => {
 .voice-btn:hover {
   background: rgba(200, 75, 49, 0.12);
   border-color: var(--color-accent);
+}
+
+.voice-icon-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
 }
 
 .chat-input {

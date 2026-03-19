@@ -10,38 +10,26 @@
             <div class="solar-term-name">{{ solarTerm.name }}</div>
             <div class="solar-term-tip">{{ solarTerm.tip }}</div>
           </div>
-          <div class="solar-term-badge">节气养生</div>
+          <button class="solar-term-expand" @click="showRagModal">
+            <span class="expand-icon">⊕</span>
+            <span class="expand-text">更多节气养生</span>
+          </button>
         </div>
         <div class="daily-quote">
           <span class="quote-mark">「</span>{{ dailyQuote }}<span class="quote-mark">」</span>
         </div>
       </div>
 
-      <!-- AI 能力 chip 栏 -->
-      <div class="ai-chips-section">
-        <div class="ai-chips-label">AI 技术支持</div>
-        <div class="ai-chips-scroll">
-          <button
-            v-for="chip in aiChips"
-            :key="chip.id"
-            class="ai-chip"
-            @click="showChipModal(chip)"
-          >
-            <span class="ai-chip-icon">{{ chip.icon }}</span>
-            <span class="ai-chip-text">{{ chip.label }}</span>
-          </button>
-        </div>
-      </div>
 
       <!-- 健康卡片 -->
       <div class="health-cards-section">
         <div class="section-title">今日健康</div>
         <div class="health-cards-scroll">
-          <!-- 恢复指数 -->
+          <!-- 元气指数 -->
           <div class="health-card">
-            <div class="card-label">恢复指数</div>
+            <div class="card-label">元气指数</div>
             <div class="card-value">
-              <span class="value-number">{{ userStore.recoveryIndex }}</span>
+              <span class="value-number">93</span>
               <span class="value-unit">分</span>
             </div>
             <div class="card-detail">
@@ -50,7 +38,7 @@
             <div class="progress-bar">
               <div
                 class="progress-fill"
-                :style="{ width: userStore.recoveryIndex + '%' }"
+                :style="{ width: '93%' }"
               ></div>
             </div>
           </div>
@@ -61,22 +49,25 @@
             <div class="card-value">{{ userStore.healthData.mood }}</div>
             <div class="card-action">
               <button class="action-btn" @click="startMeditation">
-                3分钟放松练习
+                开始3分钟放松
               </button>
             </div>
           </div>
 
           <!-- 体质趋势 -->
-          <div class="health-card">
+          <div class="health-card trend-card">
             <div class="card-label">体质趋势</div>
-            <div class="trend-chart">
-              <div
-                v-for="(item, index) in constitutionTrendData"
-                :key="index"
-                class="trend-bar"
-              >
-                <div class="bar-fill" :style="{ height: item.height + '%', background: item.gradient }"></div>
-                <div class="bar-label">{{ item.day }}</div>
+            <div class="trend-scroll-wrap">
+              <div class="trend-chart-scroll">
+                <div
+                  v-for="(item, index) in constitutionTrendData"
+                  :key="index"
+                  class="trend-bar"
+                >
+                  <div class="bar-value-label">{{ item.value }}</div>
+                  <div class="bar-fill" :style="{ height: item.height + '%', background: item.gradient }"></div>
+                  <div class="bar-label">{{ item.day }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -104,7 +95,7 @@
 
       <!-- 经典知识库 -->
       <div class="classic-section">
-        <div class="section-title">今日典籍 · RAG</div>
+        <div class="section-title">今日典籍</div>
         <div class="classic-card">
           <div class="classic-decoration-top"></div>
           <div class="classic-quote">「{{ classicQuote.text }}」</div>
@@ -125,25 +116,17 @@
     </div>
   </div>
 
-  <!-- AI chip 说明弹窗 -->
-  <Modal v-model="showModal" :title="currentChip?.label || ''">
-    <div v-if="currentChip" class="chip-modal-content">
-      <div class="chip-modal-icon">{{ currentChip.icon }}</div>
-      <div class="chip-modal-desc">{{ currentChip.desc }}</div>
-      <div class="chip-modal-detail">{{ currentChip.detail }}</div>
-    </div>
-  </Modal>
-
-  <!-- RAG 说明弹窗 -->
-  <Modal v-model="showRagDetail" title="RAG 典籍检索">
+  <!-- 节气养生弹窗 -->
+  <Modal v-model="showRagDetail" title="春分节气养生">
     <div class="rag-modal-content">
-      <div class="rag-desc">本次检索命中以下典籍片段：</div>
+      <div class="rag-desc">春分时节养生要点：</div>
       <div class="rag-sources">
-        <div class="rag-source-item">《黄帝内经·素问·四气调神大论》</div>
-        <div class="rag-source-item">《本草纲目·春季养生篇》</div>
-        <div class="rag-source-item">《伤寒论·辨太阳病脉证并治》</div>
+        <div class="rag-source-item">疏肝健脾 · 饮食宜清淡，多食绿色蔬菜</div>
+        <div class="rag-source-item">调畅情志 · 保持心情舒畅，避免大喜大怒</div>
+        <div class="rag-source-item">适度运动 · 宜散步、太极，顺应春生之气</div>
+        <div class="rag-source-item">早睡早起 · 夜卧早起，广步于庭</div>
       </div>
-      <div class="rag-note">RAG（检索增强生成）技术将海量中医典籍向量化存储，问诊时实时检索最相关内容，确保建议有据可查。</div>
+      <div class="rag-note">——据《黄帝内经·素问·四气调神大论》：「春三月，此谓发陈，天地俱生，万物以荣，夜卧早起，广步于庭……」</div>
     </div>
   </Modal>
   </div>
@@ -158,14 +141,27 @@ import Modal from '../components/common/Modal.vue'
 const router = useRouter()
 const userStore = useUserStore()
 
-// 体质趋势硬编码数据（周一-周四，周五-周日未到不显示）
-// 调整 height 值（75-95之间）即可改变柱子高度
-const constitutionTrendData = [
-  { day: '周一', height: 78, gradient: 'linear-gradient(to top, #52c41a, #95de64)' },
-  { day: '周二', height: 85, gradient: 'linear-gradient(to top, #52c41a, #b7eb8f)' },
-  { day: '周三', height: 76, gradient: 'linear-gradient(to top, #52c41a, #95de64)' },
-  { day: '周四', height: 92, gradient: 'linear-gradient(to top, #389e0d, #73d13d)' },
-]
+// 体质趋势数据 3.14-3.20，值：82 85 89 86 90 91 93（满分100）
+// 颜色：80及以下暗绿，100明亮浅绿，中间渐变
+function trendColor(value) {
+  // 80->暗绿 #2d6a2d, 100->亮浅绿 #a8e063
+  const t = Math.max(0, Math.min(1, (value - 80) / 20))
+  const r = Math.round(45 + t * (168 - 45))
+  const g = Math.round(106 + t * (224 - 106))
+  const b = Math.round(45 + t * (99 - 45))
+  const r2 = Math.round(80 + t * (199 - 80))
+  const g2 = Math.round(160 + t * (255 - 160))
+  const b2 = Math.round(80 + t * (130 - 80))
+  return `linear-gradient(to top, rgb(${r},${g},${b}), rgb(${r2},${g2},${b2}))`
+}
+const trendValues = [82, 85, 89, 86, 90, 91, 93]
+const trendDates = ['3/14', '3/15', '3/16', '3/17', '3/18', '3/19', '3/20']
+const constitutionTrendData = trendValues.map((v, i) => ({
+  day: trendDates[i],
+  value: v,
+  height: v,
+  gradient: trendColor(v)
+}))
 
 // 节气数据
 const solarTerm = computed(() => {
@@ -181,54 +177,8 @@ const classicQuote = ref({
   source: '《黄帝内经·素问》'
 })
 
-// AI 能力 chip 数据
-const aiChips = [
-  {
-    id: 'rag',
-    icon: '📚',
-    label: 'RAG 典籍',
-    desc: '检索增强生成（RAG）',
-    detail: '将《黄帝内经》《伤寒论》《本草纲目》等数十部中医典籍向量化，问诊时实时语义检索，确保每条建议均有典籍依据。'
-  },
-  {
-    id: 'multimodal',
-    icon: '👁️',
-    label: '多模态',
-    desc: 'Multi-modal 四诊采集',
-    detail: '融合舌象图像（Vision）、声诊音频（Audio）、面象分析（Vision）与文字问诊，实现传统四诊的数字化映射。'
-  },
-  {
-    id: 'agent',
-    icon: '🤖',
-    label: 'Agent 编排',
-    desc: 'Multi-Agent Orchestration',
-    detail: '由 Orchestration Agent 统筹调度：信息采集 Agent → RAG 检索 Agent → 辨证推理 Agent → 建议生成 Agent，各司其职，协同完成问诊。'
-  },
-  {
-    id: 'claude',
-    icon: '✨',
-    label: 'Claude 驱动',
-    desc: 'Powered by Claude Opus',
-    detail: '核心推理引擎采用 Anthropic Claude Opus 模型，具备深度中医知识理解能力，以温和、严谨的中医语气与用户沟通。'
-  },
-  {
-    id: 'privacy',
-    icon: '🔒',
-    label: '隐私保护',
-    desc: '数据安全与隐私',
-    detail: '所有健康数据本地加密处理，不存储于服务器。图像分析在安全环境下进行，符合医疗数据隐私标准。'
-  }
-]
-
 // Modal 状态
-const showModal = ref(false)
-const currentChip = ref(null)
 const showRagDetail = ref(false)
-
-const showChipModal = (chip) => {
-  currentChip.value = chip
-  showModal.value = true
-}
 
 const showRagModal = () => {
   showRagDetail.value = true
@@ -236,7 +186,7 @@ const showRagModal = () => {
 
 // 开始冥想
 const startMeditation = () => {
-  alert('开始3分钟放松练习...')
+  alert('开始3分钟放松...')
 }
 
 // 开始问诊
@@ -295,15 +245,32 @@ const startConsultation = () => {
   color: var(--text-secondary);
 }
 
-.solar-term-badge {
+.solar-term-expand {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(230, 162, 60, 0.10);
+  border: 1px solid rgba(230, 162, 60, 0.25);
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.solar-term-expand:hover {
+  background: rgba(230, 162, 60, 0.20);
+}
+
+.expand-icon {
+  font-size: 14px;
+  color: var(--color-warning);
+}
+
+.expand-text {
   font-size: 10px;
   font-family: var(--font-xingshu);
   color: var(--color-warning);
-  background: rgba(230, 162, 60, 0.12);
-  border: 1px solid rgba(230, 162, 60, 0.25);
-  border-radius: var(--radius-full);
-  padding: 2px 8px;
-  white-space: nowrap;
 }
 
 .daily-quote {
@@ -321,61 +288,6 @@ const startConsultation = () => {
   font-size: 1.2em;
 }
 
-/* AI chip 栏 */
-.ai-chips-section {
-  margin-bottom: var(--spacing-xl);
-}
-
-.ai-chips-label {
-  font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
-  margin-bottom: var(--spacing-sm);
-  letter-spacing: 0.08em;
-}
-
-.ai-chips-scroll {
-  display: flex;
-  gap: var(--spacing-sm);
-  overflow-x: auto;
-  padding-bottom: var(--spacing-xs);
-  -webkit-overflow-scrolling: touch;
-}
-
-.ai-chips-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.ai-chip {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(200, 75, 49, 0.20);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-}
-
-.ai-chip:hover {
-  background: rgba(200, 75, 49, 0.08);
-  border-color: var(--color-accent);
-  transform: translateY(-1px);
-}
-
-.ai-chip-icon {
-  font-size: 14px;
-}
-
-.ai-chip-text {
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: 11px;
-}
 
 /* 区块标题 */
 .section-title {
@@ -481,34 +393,57 @@ const startConsultation = () => {
 }
 
 /* 体质趋势图 */
-.trend-chart {
+.trend-card {
+  flex: 0 0 240px !important;
+}
+
+.trend-scroll-wrap {
+  overflow: hidden;
+  width: 100%;
+}
+
+.trend-chart-scroll {
   display: flex;
   align-items: flex-end;
-  gap: var(--spacing-xs);
-  height: 60px;
+  gap: 6px;
+  height: 80px;
   padding-top: var(--spacing-sm);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+
+.trend-chart-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .trend-bar {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 100%;
   justify-content: flex-end;
+  width: 22px;
+}
+
+.bar-value-label {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  margin-bottom: 2px;
 }
 
 .bar-fill {
-  width: 100%;
-  background: linear-gradient(to top, var(--color-success), var(--color-success-light));
+  width: 10px;
   border-radius: 2px 2px 0 0;
   transition: height var(--transition-slow);
 }
 
 .bar-label {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-tertiary);
   margin-top: var(--spacing-xs);
+  white-space: nowrap;
 }
 
 /* 今日行动 */
@@ -678,34 +613,7 @@ const startConsultation = () => {
   opacity: 0.9;
 }
 
-/* chip Modal 内容 */
-.chip-modal-content {
-  text-align: center;
-  padding: var(--spacing-md) 0;
-}
-
-.chip-modal-icon {
-  font-size: 48px;
-  margin-bottom: var(--spacing-md);
-}
-
-.chip-modal-desc {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-accent);
-  margin-bottom: var(--spacing-md);
-  font-family: var(--font-sans);
-}
-
-.chip-modal-detail {
-  font-size: var(--font-size-sm);
-  font-family: var(--font-xingshu);
-  color: var(--text-secondary);
-  line-height: var(--line-height-relaxed);
-  text-align: left;
-}
-
-/* RAG Modal */
+/* 节气养生 Modal */
 .rag-modal-content {
   padding: var(--spacing-sm) 0;
 }
