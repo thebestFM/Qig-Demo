@@ -1,7 +1,7 @@
 <template>
   <div class="page-container prescription-page">
     <div class="content-wrapper">
-      <div v-if="!prescriptionStore.currentPrescription" class="upload-section">
+      <div v-if="!showHardcodedResult && !prescriptionStore.currentPrescription" class="upload-section">
         <h2 class="section-title">方子解析</h2>
         <p class="section-desc">上传处方照片，Qig智能体将为您解析方义与注意事项</p>
 
@@ -43,6 +43,41 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+
+      <div v-else-if="showHardcodedResult" class="hardcoded-result">
+        <h2 class="section-title result-title">方子解析</h2>
+
+        <div class="fangzi-image-wrap">
+          <img src="/fangzi.png" alt="方子" class="fangzi-img" />
+        </div>
+
+        <div class="fangzi-analysis-card">
+          <p class="fangzi-intro">这个茶方像是给身体“顺顺气、养养脾”的小茶饮，思路很简单：</p>
+          <div class=”herb-item herb-meigui”><span class=”herb-name-plain”>玫瑰花</span>—— 是让你”开心”的。帮你舒缓情绪，改善闷闷不乐的感觉。</div>
+          <div class=”herb-item herb-chenpi”><span class=”herb-name-plain”>陈皮</span>—— 是帮你”顺气”的。感觉腹胀、没胃口时，它能理气健脾，让肚子舒服点。</div>
+          <div class=”herb-item herb-fuling”><span class=”herb-name-plain”>茯苓</span>—— 是帮你”祛湿”的。对付莫名的疲惫、身体沉重或大便不成形，它能让脾胃运转更利落。</div>
+          <div class=”herb-item herb-hongzao”><span class=”herb-name-plain”>红枣</span>—— 是给你”加油”的。稍微补补气血，也让整个茶方更温和。</div>
+          <p class="fangzi-summary">简单来说：玫瑰花管心情，陈皮管肚子胀，茯苓管祛湿累，红枣管调和。四样一起，就是一边帮你放松，一边帮脾胃减负。</p>
+          <div class="fangzi-notice-group">
+            <div class="fangzi-notice"><span class="notice-label">怎么喝：</span>所有材料用热水泡着当茶喝就行，建议饭后喝。</div>
+            <div class="fangzi-notice"><span class="notice-label">注意：</span>这是养生调理，不是治病的药。如果不舒服持续或加重，一定要看医生。</div>
+            <div class="fangzi-notice"><span class="notice-label">不合适的人：</span>如果正感冒发烧，或平时容易上火、便秘、口干舌燥，就不太适合。孕妇也请先咨询医生。</div>
+          </div>
+        </div>
+
+        <!-- 底部操作栏 -->
+        <div class="result-input-area">
+          <button class="result-action-btn supplement-btn">补充方子</button>
+          <input
+            v-model="supplementInput"
+            type="text"
+            class="result-chat-input"
+            placeholder="补充描述症状或备注…"
+          />
+          <button class="result-action-btn reupload-btn" @click="resetUpload">重新上传</button>
         </div>
       </div>
 
@@ -163,6 +198,8 @@ const userStore = useUserStore()
 
 const isProcessing = ref(false)
 const processingStepIndex = ref(0)
+const showHardcodedResult = ref(false)
+const supplementInput = ref('')
 const processingSteps = [
   '图像预处理 · 去噪增强',
   'Vision OCR · 文字提取',
@@ -182,13 +219,17 @@ const handlePrescriptionUpload = async (event) => {
         clearInterval(stepTimer)
       }
     }, 400)
-    setTimeout(async () => {
-      const prescription = await prescriptionStore.recognizePrescription(file)
-      prescriptionStore.setCurrentPrescription(prescription)
+    setTimeout(() => {
       isProcessing.value = false
       processingStepIndex.value = 0
+      showHardcodedResult.value = true
     }, 1800)
   }
+}
+
+const resetUpload = () => {
+  showHardcodedResult.value = false
+  supplementInput.value = ''
 }
 
 const addToPlan = () => {
@@ -609,5 +650,160 @@ const askWhy = () => {
   50% {
     opacity: 0.5;
   }
+}
+
+/* 硬编码解析结果页 */
+.hardcoded-result {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(var(--tab-bar-height) + 70px);
+}
+
+.result-title {
+  text-align: center;
+  padding-top: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+}
+
+.fangzi-image-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.fangzi-img {
+  width: 20%;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-light);
+  object-fit: contain;
+}
+
+.fangzi-analysis-card {
+  margin: 0 var(--spacing-lg) var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-light);
+}
+
+.fangzi-intro {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-md);
+  font-family: var(--font-xingshu);
+}
+
+.herb-item {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-sm);
+  padding-left: var(--spacing-sm);
+}
+
+.herb-meigui  { border-left: 2px solid #C2447A; }
+.herb-chenpi  { border-left: 2px solid #8B5E3C; }
+.herb-fuling  { border-left: 2px solid #3A6B4A; }
+.herb-hongzao { border-left: 2px solid var(--color-accent); }
+
+.herb-name-plain {
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-xingshu);
+  margin-right: 2px;
+}
+
+.fangzi-summary {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  font-style: italic;
+}
+
+.fangzi-notice-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-light);
+}
+
+.fangzi-notice {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.notice-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* 底部操作栏 */
+.result-input-area {
+  position: fixed;
+  bottom: var(--tab-bar-height);
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-light);
+  align-items: center;
+  z-index: 100;
+}
+
+.result-action-btn {
+  flex-shrink: 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.supplement-btn {
+  background: var(--color-accent);
+  color: var(--text-light);
+  border: none;
+}
+
+.supplement-btn:hover {
+  opacity: 0.88;
+}
+
+.reupload-btn {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+}
+
+.reupload-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.result-chat-input {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  outline: none;
+  background: transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.result-chat-input:focus {
+  border-color: var(--color-accent);
 }
 </style>
